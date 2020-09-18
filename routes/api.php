@@ -16,4 +16,4 @@ use App\Http\Controllers\API\V1\DocumentController;
 |
 */
 
-Route::apiResource('document', DocumentController::class);
+Route::apiResource('document', DocumentController::class)->except(['destroy']);
