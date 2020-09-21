@@ -13,9 +13,16 @@ class DocumentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Document $document)
     {
-        //
+
+        $allDocument = Document::simplePaginate(15);
+
+        $result = [
+            'document' => $allDocument
+        ];
+
+        return response()->json($result, 200);
     }
 
     /**

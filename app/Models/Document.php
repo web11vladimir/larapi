@@ -11,18 +11,26 @@ class Document extends Model
     use HasFactory;
 
     /**
-     * Indicates if the IDs are auto-incrementing.
+     * отключение автоинкремента
      *
      * @var bool
      */
     public $incrementing = false;
 
     /**
-     * The "type" of the auto-incrementing ID.
+     * тип первичного ключа
      *
      * @var string
      */
     protected $keyType = 'string';
+
+
+    // значение полей по умолчанию
+    protected $attributes = [
+        'status' => 'draft',
+        'payload' => '{}'
+    ];
+
 
     /**
      * отслеживание событий жиизненного цикла модели
@@ -31,16 +39,9 @@ class Document extends Model
      */
     protected static function booted()
     {
-        // генерация данных перед созданием
+        // генерация uuid перед созданием
         static::creating(function ($document) {
-            // uuid
             $document->id = (string) Str::uuid();
-            
-            // статус по умолчанию
-            $document->status = 'draft';
-
-            // данные по умолчанию
-            $document->payload = '{}';
         });    
     }
 }
