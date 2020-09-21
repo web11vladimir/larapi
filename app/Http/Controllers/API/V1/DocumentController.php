@@ -3,16 +3,26 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Document;
+use Illuminate\Http\Request;
 
 class DocumentController extends Controller
 {
     /**
-     * создаем документ
+     * показ списка документов
      *
-     * @param Request $request
-     * @return json
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * создание нового документа
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
@@ -27,10 +37,10 @@ class DocumentController extends Controller
     }
 
     /**
-     * получаем документ по id
+     * показ отдельного документа
      *
-     * @param Document $document
-     * @return json
+     * @param  \App\Models\Document  $document
+     * @return \Illuminate\Http\Response
      */
     public function show(Document $document)
     {
@@ -41,16 +51,21 @@ class DocumentController extends Controller
         return response()->json($result, 200);
     }
 
-
-    public function update(Document $document, Request $request)
+    /**
+     * обновление документа
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Document  $document
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Document $document)
     {
+        $oldData = json_decode($document->payload, true); // старые данные
+        $newData = $request->input('document')['payload']; // новые данные
+        $resultData = array_merge($oldData, $newData); // обновленные данные
 
-        $newData = $request->input('document');
-        $oldDate = $document->payload;
-
-        $resultDate = array_merge(json_decode($oldDate, TRUE), $newData);
-
-        $document->payload = $resultDate;
+        // обновляем данные
+        $document->payload = $resultData;
         $document->save();
 
         $result = [
@@ -60,4 +75,23 @@ class DocumentController extends Controller
         return response()->json($result, 200);
     }
 
+    /**
+     * публикация документа
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Document  $document
+     * @return \Illuminate\Http\Response
+     */
+    public function publish(Request $request, Document $document)
+    {
+        // меняем статус на опубликован
+        $document->status = 'published';
+        $document->save();
+
+        $result = [
+            'document' => $document
+        ];
+
+        return response()->json($result, 200);
+    }
 }

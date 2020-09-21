@@ -16,4 +16,8 @@ use App\Http\Controllers\API\V1\DocumentController;
 |
 */
 
+// маршруты index, store, show, update
 Route::apiResource('document', DocumentController::class)->except(['destroy']);
+
+// маршрут публикации документа
+Route::post('document/{document}/publish', [DocumentController::class, 'publish']);
