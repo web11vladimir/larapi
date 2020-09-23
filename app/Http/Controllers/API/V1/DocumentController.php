@@ -11,15 +11,24 @@ class DocumentController extends Controller
     /**
      * показ списка документов
      *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Document  $document
      * @return \Illuminate\Http\Response
      */
-    public function index(Document $document)
+    public function index(Document $document, Request $request)
     {
+        // количество документов для показа
+        $perPage = (int) $request->input('perPage') ?? 0;
 
-        $allDocument = Document::simplePaginate(15);
+        $paginator = Document::paginate($perPage);
 
         $result = [
-            'document' => $allDocument
+            'document' => $paginator->items(),
+            'pagination' => [
+                'page' => $paginator->currentPage(),
+                'perPage' => $paginator->perPage(),
+                'total' => $paginator->total()
+            ]
         ];
 
         return response()->json($result, 200);
@@ -36,11 +45,7 @@ class DocumentController extends Controller
         $document = new Document();
         $document->save();
 
-        $response = [
-            'document' => $document
-        ];
-
-        return response()->json($response, 200);
+        return response()->json(['document' => $document], 200);
     }
 
     /**
@@ -51,11 +56,7 @@ class DocumentController extends Controller
      */
     public function show(Document $document)
     {
-        $result = [
-            'document' => $document
-        ];
-
-        return response()->json($result, 200);
+        return response()->json(['document' => $document], 200);
     }
 
     /**
@@ -67,6 +68,16 @@ class DocumentController extends Controller
      */
     public function update(Request $request, Document $document)
     {
+        // запрещаем обновление уже опубликованного документа
+        if ($document->status === 'published') {
+            return response()->json(['document' => $document], 400);
+        }
+
+        // запрещаем обновление если в запросе нет поля payload
+        if (empty($request->input('document')['payload'])) {
+            return response()->json(['document' => $document], 400); 
+        }
+
         $oldData = json_decode($document->payload, true); // старые данные
         $newData = $request->input('document')['payload']; // новые данные
         $resultData = array_merge($oldData, $newData); // обновленные данные
@@ -75,11 +86,7 @@ class DocumentController extends Controller
         $document->payload = $resultData;
         $document->save();
 
-        $result = [
-            'document' => $document
-        ];
-
-        return response()->json($result, 200);
+        return response()->json(['document' => $document], 200);
     }
 
     /**
@@ -91,14 +98,15 @@ class DocumentController extends Controller
      */
     public function publish(Request $request, Document $document)
     {
+        // проверяем на  повторную публикацию
+        if ($document->status === 'published') {
+            return response()->json(['document' => $document], 200); 
+        }
+
         // меняем статус на опубликован
         $document->status = 'published';
         $document->save();
 
-        $result = [
-            'document' => $document
-        ];
-
-        return response()->json($result, 200);
+        return response()->json(['document' => $document], 200);
     }
 }

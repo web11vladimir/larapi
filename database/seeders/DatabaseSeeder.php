@@ -16,8 +16,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        Document::factory()
-            ->times(5)
-            ->create();
+        
     }
 }

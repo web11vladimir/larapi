@@ -24,16 +24,14 @@ class Document extends Model
      */
     protected $keyType = 'string';
 
-
     // значение полей по умолчанию
     protected $attributes = [
         'status' => 'draft',
         'payload' => '{}'
     ];
 
-
     /**
-     * отслеживание событий жиизненного цикла модели
+     * отслеживание событий жизненного цикла модели
      *
      * @return void
      */
